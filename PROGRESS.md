@@ -25,6 +25,7 @@
 | 2026-11-10 | GitHub 공개 및 Pages 배포 | 공개 전 비밀정보·개인정보 패턴과 자료 성격을 점검하고 `.gitignore`에 `.env`, `node_modules`, 캐시·로그·빌드·결과 파일을 추가함. 엑셀 7개에서 개인 이름으로 보이는 문서 속성을 확인하여 원본을 수정하지 않고 `*.xlsx`를 공개 대상에서 제외했으며, 결과 문서 `*.hwpx`도 제외함. 공개 저장소 `https://github.com/appacnts-beep/01-common-tools`를 만들고 `main` 브랜치를 업로드했으며, Pages를 `main` 브랜치의 `/(root)`에서 활성화함. 배포 주소: `https://appacnts-beep.github.io/01-common-tools/web/` (`assign.html`: `https://appacnts-beep.github.io/01-common-tools/web/assign.html`). | 없음 | 없음 |
 | 2026-11-10 | Vercel 프로덕션 배포 | Vercel 프로젝트 `appacnts/01-common-tools`에 `web/`을 프로젝트 루트로 연결하고 프로덕션 배포함. 시작 화면 `https://01-common-tools.vercel.app/`과 배분 화면 `https://01-common-tools.vercel.app/assign.html`이 모두 HTTP 200으로 응답하고 배포 상태가 `Ready`임을 확인함. 로컬 연결정보 `.vercel/`은 공개 저장소에서 제외함. | 없음 | 없음 |
 | 2026-11-10 | Vercel 404 수정 | GitHub 자동 배포가 저장소 최상위를 배포해 프로덕션 별칭을 404 배포로 덮어쓴 원인을 확인함. Vercel 프로젝트의 Root Directory를 `web`으로 고정하고 저장소 루트에서 다시 프로덕션 배포함. `https://01-common-tools.vercel.app/`과 `/assign.html` 모두 HTTP 200, 올바른 화면 제목, 배포 상태 `Ready`를 확인함. | 없음 | 없음 |
+| 2026-11-10 | 공개 파일 보안 재검사 | Git 추적 파일 45개와 전체 커밋 이력을 검사함. 비밀키·토큰·이메일·주민번호형 문자열은 0건이고, 전화번호형 1건은 `split.py`의 차단 검사용 가짜 값 `02-000-0000`임. 공개 CSV·PDF는 `지침재료/00_안내.txt`에 명시된 가상·교육용 자료이며 의원명은 영문 한 글자이고 PDF 3개의 작성자 메타데이터는 비어 있음. 개인 이름 메타데이터가 있던 엑셀 7개와 HWPX 3개, `.env`, `.vercel`은 Git 추적 0건임. GitHub Pages: `https://appacnts-beep.github.io/01-common-tools/web/`, Vercel: `https://01-common-tools.vercel.app/` 및 `https://01-common-tools.vercel.app/assign.html`. | 없음 | 없음 |
 
 ## 다음 작업 순서
 
