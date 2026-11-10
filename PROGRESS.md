@@ -24,6 +24,7 @@
 | 2026-11-10 | S7 접수·배분 화면 | `web/index.html`, `web/assign.html`, `web/split.js`, `web/common.js`와 화면 동작용 `web/assign.js`, `web/styles.css`를 작성함. 보강 배분기준표·조직도와 로컬 pdf.js를 `web/data`, `web/lib`에 배치함. PDF·문항목록 CSV 접수, 후보 3순위, 26개 과 주관·협조 선택, 규칙/수정 방법과 localStorage 기록을 구현함. 실제 PDF 3건은 25·34·19건, 합계 78건·번호 연속 일치했고 자동 브라우저에서 78행 표시와 2건 `배분확정` 저장을 확인함. | S6 현업 회신과 S8 취합 화면 구현 | 현재 저장은 요청대로 브라우저 localStorage에만 남으며 다른 브라우저·PC와 공유되지 않음. |
 | 2026-11-10 | GitHub 공개 및 Pages 배포 | 공개 전 비밀정보·개인정보 패턴과 자료 성격을 점검하고 `.gitignore`에 `.env`, `node_modules`, 캐시·로그·빌드·결과 파일을 추가함. 엑셀 7개에서 개인 이름으로 보이는 문서 속성을 확인하여 원본을 수정하지 않고 `*.xlsx`를 공개 대상에서 제외했으며, 결과 문서 `*.hwpx`도 제외함. 공개 저장소 `https://github.com/appacnts-beep/01-common-tools`를 만들고 `main` 브랜치를 업로드했으며, Pages를 `main` 브랜치의 `/(root)`에서 활성화함. 배포 주소: `https://appacnts-beep.github.io/01-common-tools/web/` (`assign.html`: `https://appacnts-beep.github.io/01-common-tools/web/assign.html`). | 없음 | 없음 |
 | 2026-11-10 | Vercel 프로덕션 배포 | Vercel 프로젝트 `appacnts/01-common-tools`에 `web/`을 프로젝트 루트로 연결하고 프로덕션 배포함. 시작 화면 `https://01-common-tools.vercel.app/`과 배분 화면 `https://01-common-tools.vercel.app/assign.html`이 모두 HTTP 200으로 응답하고 배포 상태가 `Ready`임을 확인함. 로컬 연결정보 `.vercel/`은 공개 저장소에서 제외함. | 없음 | 없음 |
+| 2026-11-10 | Vercel 404 수정 | GitHub 자동 배포가 저장소 최상위를 배포해 프로덕션 별칭을 404 배포로 덮어쓴 원인을 확인함. Vercel 프로젝트의 Root Directory를 `web`으로 고정하고 저장소 루트에서 다시 프로덕션 배포함. `https://01-common-tools.vercel.app/`과 `/assign.html` 모두 HTTP 200, 올바른 화면 제목, 배포 상태 `Ready`를 확인함. | 없음 | 없음 |
 
 ## 다음 작업 순서
 
