@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>네온 테트리스</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="game-shell">
+    <section class="board-wrap">
+      <canvas id="board" width="300" height="600" aria-label="테트리스 게임판"></canvas>
+      <div id="overlay" class="overlay">
+        <h1>NEON BLOCKS</h1>
+        <p>블록을 쌓고 줄을 완성하세요.</p>
+        <button id="startButton">게임 시작</button>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div>
+        <span class="eyebrow">NEXT BLOCK</span>
+        <canvas id="next" width="120" height="120" aria-label="다음 블록"></canvas>
+      </div>
+      <dl class="stats">
+        <div><dt>점수</dt><dd id="score">0</dd></div>
+        <div><dt>레벨</dt><dd id="level">1</dd></div>
+        <div><dt>지운 줄</dt><dd id="lines">0</dd></div>
+      </dl>
+      <div class="controls">
+        <span class="eyebrow">CONTROLS</span>
+        <p><kbd>←</kbd><kbd>→</kbd> 이동</p>
+        <p><kbd>↑</kbd> 회전</p>
+        <p><kbd>↓</kbd> 내리기</p>
+        <p><kbd>Space</kbd> 즉시 내리기</p>
+        <p><kbd>P</kbd> 일시정지</p>
+      </div>
+      <button id="pauseButton" class="secondary">일시정지</button>
+    </aside>
+  </main>
+  <script src="game.js"></script>
+</body>
+</html>

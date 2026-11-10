@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>국회 요구자료 업무</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">국회 요구자료 업무</a>
+    <nav class="nav" aria-label="업무 화면 이동">
+      <a class="active" href="index.html">시작 화면</a>
+      <a href="assign.html">배분</a>
+      <a class="soon" href="#" aria-disabled="true" title="S6에서 구현">현업 회신 · S6</a>
+      <a class="soon" href="#" aria-disabled="true" title="S8에서 구현">취합 · S8</a>
+    </nav>
+  </header>
+  <main class="page">
+    <section class="hero" data-reveal>
+      <div>
+        <p class="eyebrow">A부 · 국회 총괄</p>
+        <h1>요구자료 처리 현황</h1>
+        <p class="subtitle">접수부터 배분, 현업 회신과 취합까지 같은 문항을 기준으로 관리합니다.</p>
+      </div>
+      <div class="summary" id="summary"></div>
+    </section>
+    <section class="start-grid" data-reveal data-stagger>
+      <a class="start-card" href="assign.html">
+        <span class="badge">지금 사용 가능</span><div class="number">01</div><h2>접수·배분</h2>
+        <p>PDF 또는 문항목록 CSV를 등록하고 후보 근거를 확인해 주관·협조 과를 확정합니다.</p>
+      </a>
+      <div class="start-card" aria-disabled="true">
+        <span class="badge">S6 예정</span><div class="number">02</div><h2>현업 회신</h2>
+        <p>각 과가 자기 문항을 확인하고 회신 파일을 등록하거나 재배정을 요청합니다.</p>
+      </div>
+      <div class="start-card" aria-disabled="true">
+        <span class="badge">S8 예정</span><div class="number">03</div><h2>취합</h2>
+        <p>회신 누락과 이상을 확인하고 보완 요청 후 제출본을 확정합니다.</p>
+      </div>
+    </section>
+  </main>
+  <script src="common.js"></script>
+  <script>
+    const counts = AppCommon.statusCounts();
+    const total = Object.values(counts).reduce((sum, value) => sum + value, 0);
+    document.querySelector("#summary").innerHTML = `
+      <span><strong>${total}</strong>전체 문항</span>
+      <span><strong>${counts["접수"] || 0}</strong>접수</span>
+      <span><strong>${counts["배분확정"] || 0}</strong>배분확정</span>`;
+    const reduce = matchMedia("(prefers-reduced-motion:reduce)").matches;
+    const reveal = document.querySelectorAll("[data-reveal]");
+    document.querySelectorAll("[data-stagger]").forEach((parent) => [...parent.children].forEach((child, index) => { child.style.transitionDelay = `${index * 70}ms`; }));
+    if (reduce || !("IntersectionObserver" in window)) reveal.forEach((el) => el.classList.add("show"));
+    else { const io = new IntersectionObserver((entries) => entries.forEach((entry) => { if (entry.isIntersecting) { entry.target.classList.add("show"); io.unobserve(entry.target); } }), { threshold: .15 }); reveal.forEach((el) => io.observe(el)); }
+  </script>
+</body>
+</html>
