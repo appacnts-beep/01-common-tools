@@ -4,40 +4,14 @@
   const STORAGE_KEY = "assembly-request-cases-v1";
 
   function parseCsv(text) {
-    const rows = [];
-    let row = [];
-    let field = "";
-    let quoted = false;
-    const source = String(text).replace(/^\uFEFF/, "");
-
-    for (let index = 0; index < source.length; index += 1) {
-      const char = source[index];
-      if (quoted) {
-        if (char === '"' && source[index + 1] === '"') {
-          field += '"';
-          index += 1;
-        } else if (char === '"') quoted = false;
-        else field += char;
-      } else if (char === '"') quoted = true;
-      else if (char === ",") {
-        row.push(field);
-        field = "";
-      } else if (char === "\n") {
-        row.push(field.replace(/\r$/, ""));
-        rows.push(row);
-        row = [];
-        field = "";
-      } else field += char;
-    }
-    if (field || row.length) {
-      row.push(field.replace(/\r$/, ""));
-      rows.push(row);
-    }
-
-    const headers = rows.shift() || [];
-    return rows
-      .filter((values) => values.some((value) => value.trim()))
-      .map((values) => Object.fromEntries(headers.map((header, index) => [header, values[index] || ""])));
+    if (!root.Papa) throw new Error("Papa Parse를 불러오지 못했습니다.");
+    const result = root.Papa.parse(String(text).replace(/^\uFEFF/, ""), {
+      header: true,
+      skipEmptyLines: "greedy",
+      transformHeader: (header) => header.trim(),
+    });
+    if (result.errors.length) throw new Error(`CSV 형식을 확인해 주세요: ${result.errors[0].message}`);
+    return result.data;
   }
 
   async function fetchText(url) {

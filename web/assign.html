@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>접수·배분 | 국회 요구자료</title>
+  <link rel="stylesheet" href="lib/tabulator.min.css">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -25,19 +26,21 @@
       <div class="panel-head"><h2><span class="step">1</span>접수</h2><span class="badge" id="data-status">기준자료 읽는 중</span></div>
       <div class="upload-grid">
         <label class="drop-card"><strong>자료요구서 PDF</strong><p>여러 파일을 한 번에 선택하면 글자를 읽어 문항으로 나눕니다.</p><input id="pdf-files" type="file" accept="application/pdf,.pdf" multiple></label>
-        <label class="drop-card"><strong>문항목록 CSV</strong><p>이미 확인한 문항목록.csv를 바로 불러올 수도 있습니다.</p><input id="csv-file" type="file" accept=".csv,text/csv"></label>
+        <label class="drop-card"><strong>문항목록 CSV·엑셀</strong><p>확인한 문항목록 CSV 또는 XLSX 파일을 바로 불러올 수 있습니다.</p><input id="csv-file" type="file" accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"></label>
       </div>
       <div class="progress-wrap" id="progress-wrap"><progress id="progress" max="100" value="0"></progress><strong id="progress-label">0%</strong></div>
       <p class="message" id="import-message" role="status"></p>
       <div class="actions"><button id="register" disabled>접수 등록</button><button id="clear-preview" class="secondary" disabled>미리보기 비우기</button></div>
-      <div class="table-wrap" id="preview-wrap" hidden style="margin-top:16px"><table><thead><tr><th>파일·문항</th><th>위원회·의원</th><th>제출기한</th><th>요구내용</th><th>세부항목·비고</th></tr></thead><tbody id="preview-body"></tbody></table></div>
+      <div class="table-wrap tabulator-wrap" id="preview-wrap" hidden style="margin-top:16px"><div id="preview-table"></div></div>
     </section>
 
     <section class="panel" data-reveal>
       <div class="panel-head"><h2><span class="step">2</span>배분</h2><span class="badge" id="case-count">0문항</span></div>
+      <div class="table-tools"><label>문항 검색 <input id="case-search" type="search" placeholder="의원·요구내용·부서 검색"></label><button id="export-xlsx" class="secondary">엑셀로 내보내기</button></div>
       <div class="table-wrap"><table><thead><tr><th>상태</th><th>의원·문항</th><th>요구내용</th><th>후보 3순위</th><th>주관 과</th><th>협조 과</th><th>확정</th></tr></thead><tbody id="assignment-body"><tr><td colspan="7" class="empty">접수된 문항이 없습니다.</td></tr></tbody></table></div>
     </section>
   </main>
+  <script src="lib/papaparse.min.js"></script><script src="lib/xlsx.full.min.js"></script><script src="lib/fuse.min.js"></script><script src="lib/tabulator.min.js"></script>
   <script src="common.js"></script><script src="split.js"></script><script src="engine.js"></script>
   <script type="module" src="assign.js"></script>
 </body>

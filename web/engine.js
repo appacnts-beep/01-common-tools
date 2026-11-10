@@ -15,6 +15,15 @@
   let initialized = false;
 
   function parseCsv(text) {
+    if (typeof globalThis !== "undefined" && globalThis.Papa) {
+      const result = globalThis.Papa.parse(String(text).replace(/^\uFEFF/, ""), {
+        header: true,
+        skipEmptyLines: "greedy",
+        transformHeader: (header) => header.trim(),
+      });
+      if (result.errors.length) throw new Error(`CSV 형식 오류: ${result.errors[0].message}`);
+      return result.data;
+    }
     const rows = [];
     let row = [];
     let field = "";

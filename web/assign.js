@@ -5,15 +5,18 @@ const { escapeHtml, parseCsv, loadCases, saveCases, caseId, fetchCsv } = AppComm
 const elements = {
   pdf: document.querySelector("#pdf-files"), csv: document.querySelector("#csv-file"),
   register: document.querySelector("#register"), clear: document.querySelector("#clear-preview"),
-  previewWrap: document.querySelector("#preview-wrap"), previewBody: document.querySelector("#preview-body"),
+  previewWrap: document.querySelector("#preview-wrap"), previewTable: document.querySelector("#preview-table"),
   assignmentBody: document.querySelector("#assignment-body"), message: document.querySelector("#import-message"),
   progressWrap: document.querySelector("#progress-wrap"), progress: document.querySelector("#progress"),
   progressLabel: document.querySelector("#progress-label"), dataStatus: document.querySelector("#data-status"),
   caseCount: document.querySelector("#case-count"), summary: document.querySelector("#summary"),
+  caseSearch: document.querySelector("#case-search"), exportXlsx: document.querySelector("#export-xlsx"),
 };
 
 let previewItems = [];
 let departments = [];
+let previewTable = null;
+let assignmentQuery = "";
 
 function setMessage(text, kind = "") {
   elements.message.textContent = text;
@@ -24,6 +27,33 @@ function setProgress(value, label = `${Math.round(value)}%`) {
   elements.progressWrap.classList.add("on");
   elements.progress.value = value;
   elements.progressLabel.textContent = label;
+}
+
+function ensurePreviewTable() {
+  if (previewTable) return previewTable;
+  if (!globalThis.Tabulator) throw new Error("Tabulator를 불러오지 못했습니다.");
+  previewTable = new Tabulator(elements.previewTable, {
+    data: previewItems,
+    layout: "fitDataStretch",
+    placeholder: "미리볼 문항이 없습니다.",
+    columns: [
+      { title: "파일·문항", field: "파일명", minWidth: 180, headerFilter: "input", formatter: (cell) => {
+        const row = cell.getRow().getData();
+        return `<span class="meta"><strong>${escapeHtml(row.파일명)}</strong>${escapeHtml(row.문항번호)}번</span>`;
+      } },
+      { title: "위원회·의원", field: "위원회", minWidth: 160, formatter: (cell) => {
+        const row = cell.getRow().getData();
+        return `${escapeHtml(row.위원회)}<br><strong>${escapeHtml(row.의원)}</strong>`;
+      } },
+      { title: "제출기한", field: "제출기한", width: 120, sorter: "string" },
+      { title: "요구내용", field: "요구내용", minWidth: 320, headerFilter: "input", formatter: (cell) => escapeHtml(cell.getValue()) },
+      { title: "세부항목·비고", field: "세부항목", minWidth: 240, formatter: (cell) => {
+        const row = cell.getRow().getData();
+        return `${row.세부항목 ? `<strong>세부</strong> ${escapeHtml(row.세부항목)}` : ""}${row.세부항목 && row.비고 ? "<br>" : ""}${row.비고 ? `<strong>비고</strong> ${escapeHtml(row.비고)}` : ""}`;
+      } },
+    ],
+  });
+  return previewTable;
 }
 
 async function extractPdf(file, progressStart, progressShare) {
@@ -47,12 +77,11 @@ function renderPreview(checks = []) {
   elements.previewWrap.hidden = previewItems.length === 0;
   elements.register.disabled = previewItems.length === 0;
   elements.clear.disabled = previewItems.length === 0;
-  elements.previewBody.innerHTML = previewItems.map((item) => `<tr>
-    <td class="meta"><strong>${escapeHtml(item.파일명)}</strong>${escapeHtml(item.문항번호)}번</td>
-    <td>${escapeHtml(item.위원회)}<br>${escapeHtml(item.의원)}</td><td>${escapeHtml(item.제출기한)}</td>
-    <td class="request">${escapeHtml(item.요구내용)}</td>
-    <td>${item.세부항목 ? `<strong>세부</strong> ${escapeHtml(item.세부항목)}<br>` : ""}${item.비고 ? `<strong>비고</strong> ${escapeHtml(item.비고)}` : ""}</td>
-  </tr>`).join("");
+  if (previewItems.length) requestAnimationFrame(() => {
+    if (previewTable) previewTable.replaceData(previewItems);
+    else ensurePreviewTable();
+  });
+  else if (previewTable) previewTable.clearData();
   if (checks.length) {
     const result = checks.map((check) => `${check.파일명}: ${check.뽑은문항수}문항·${check.일치 ? "일치" : "확인필요"}`).join(" / ");
     setMessage(`${previewItems.length}문항을 읽었습니다. ${result}`, checks.every((check) => check.일치) ? "success" : "error");
@@ -82,12 +111,17 @@ elements.csv.addEventListener("change", async () => {
   const [file] = elements.csv.files;
   if (!file) return;
   try {
-    const rows = parseCsv(await file.text());
+    const isExcel = /\.xlsx?$/i.test(file.name);
+    let rows;
+    if (isExcel) {
+      const workbook = XLSX.read(await file.arrayBuffer(), { type: "array" });
+      rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: "", raw: false });
+    } else rows = parseCsv(await file.text());
     const required = ["파일명", "위원회", "의원", "제출기한", "문항번호", "요구내용", "세부항목", "비고"];
     if (!rows.length || required.some((key) => !(key in rows[0]))) throw new Error("문항목록 CSV의 열을 확인해 주세요.");
     previewItems = rows.map((row) => ({ ...row, 문항번호: Number(row.문항번호) }));
     renderPreview();
-    setMessage(`${previewItems.length}문항을 CSV에서 읽었습니다.`, "success");
+    setMessage(`${previewItems.length}문항을 ${isExcel ? "엑셀" : "CSV"}에서 읽었습니다.`, "success");
   } catch (error) { setMessage(error.message, "error"); }
 });
 
@@ -127,14 +161,17 @@ function options(selected = "") {
 
 function renderAssignments() {
   const cases = loadCases();
-  elements.caseCount.textContent = `${cases.length}문항`;
+  const visibleCases = assignmentQuery
+    ? new Fuse(cases, { keys: ["의원", "위원회", "요구내용", "주관과", "상태"], threshold: .32, ignoreLocation: true }).search(assignmentQuery).map((result) => result.item)
+    : cases;
+  elements.caseCount.textContent = assignmentQuery ? `${visibleCases.length}/${cases.length}문항` : `${cases.length}문항`;
   const confirmed = cases.filter((item) => item.상태 === "배분확정").length;
   elements.summary.innerHTML = `<span><strong>${cases.length}</strong>전체</span><span><strong>${cases.length - confirmed}</strong>배분 대기</span><span><strong>${confirmed}</strong>배분확정</span>`;
-  if (!cases.length) {
-    elements.assignmentBody.innerHTML = `<tr><td colspan="7" class="empty">접수된 문항이 없습니다.</td></tr>`;
+  if (!visibleCases.length) {
+    elements.assignmentBody.innerHTML = `<tr><td colspan="7" class="empty">${cases.length ? "검색 결과가 없습니다." : "접수된 문항이 없습니다."}</td></tr>`;
     return;
   }
-  elements.assignmentBody.innerHTML = cases.map((item) => `<tr data-id="${escapeHtml(item.id)}">
+  elements.assignmentBody.innerHTML = visibleCases.map((item) => `<tr data-id="${escapeHtml(item.id)}">
     <td><span class="badge ${item.상태 === "배분확정" ? "confirmed" : ""}">${escapeHtml(item.상태)}</span></td>
     <td class="meta"><strong>${escapeHtml(item.의원)} · ${escapeHtml(item.문항번호)}번</strong>${escapeHtml(item.위원회)}<br>${escapeHtml(item.제출기한)}</td>
     <td class="request">${escapeHtml(item.요구내용)}${item.세부항목 ? `<br><small>${escapeHtml(item.세부항목)}</small>` : ""}</td>
@@ -163,6 +200,26 @@ elements.assignmentBody.addEventListener("click", (event) => {
   saveCases(cases);
   setMessage(`${item.의원} ${item.문항번호}번을 ${lead}로 배분 확정했습니다.`, "success");
   renderAssignments();
+});
+
+elements.caseSearch.addEventListener("input", () => {
+  assignmentQuery = elements.caseSearch.value.trim();
+  renderAssignments();
+});
+
+elements.exportXlsx.addEventListener("click", () => {
+  const cases = loadCases();
+  if (!cases.length) { setMessage("내보낼 문항이 없습니다.", "error"); return; }
+  const rows = cases.map((item) => ({
+    상태: item.상태, 의원: item.의원, 위원회: item.위원회, 문항번호: item.문항번호,
+    요구내용: item.요구내용, 주관과: item.주관과, 협조과: (item.협조과 || []).join("|"),
+    후보: (item.후보 || []).map((candidate) => `${candidate.과}(${candidate.점수})`).join(" | "),
+    확정방법: item.확정방법, 처리일시: item.일시,
+  }));
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(rows), "배분현황");
+  XLSX.writeFile(workbook, "국회요구자료_배분현황.xlsx", { compression: true });
+  setMessage(`${rows.length}문항을 엑셀로 내보냈습니다.`, "success");
 });
 
 function enableReveal() {

@@ -56,6 +56,11 @@ input[type=file] { width: 100%; padding: 9px; border: 1px solid var(--line); bor
 .progress-wrap { display: none; margin-top: 14px; }
 .progress-wrap.on { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; }
 progress { width: 100%; height: 10px; accent-color: var(--blue); }
+.table-tools { display: flex; align-items: end; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.table-tools label { display: grid; gap: 5px; color: var(--muted); font-size: 12px; font-weight: 800; }
+.table-tools input[type=search] { width: min(420px, 70vw); padding: 9px 11px; border: 1px solid #b9c5d5; border-radius: 8px; background: #fff; }
+.chart-panel { max-width: 540px; }
+.chart-wrap { height: 260px; }
 
 .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 11px; }
 table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; }
@@ -75,6 +80,12 @@ tbody tr:hover { background: #f8fbff; }
 select { width: 100%; min-width: 150px; padding: 8px; border: 1px solid #b9c5d5; border-radius: 8px; background: #fff; }
 select[multiple] { min-height: 78px; }
 .empty { padding: 34px; color: var(--muted); text-align: center; }
+.tabulator-wrap { overflow: hidden; }
+.tabulator { border: 0; background: transparent; font: inherit; }
+.tabulator .tabulator-header { border-bottom: 1px solid var(--line); background: #edf2f8; color: #42526a; }
+.tabulator .tabulator-header .tabulator-col, .tabulator .tabulator-row { background: transparent; }
+.tabulator .tabulator-row:hover { background: #f8fbff; }
+.tabulator .tabulator-cell { padding: 10px; border-right-color: #e8edf4; white-space: normal; }
 
 .start-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
 .start-card { display: block; min-height: 190px; padding: 22px; border-radius: 15px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); transition: transform .28s cubic-bezier(.34,1.56,.64,1); }
