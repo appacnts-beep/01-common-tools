@@ -5,6 +5,7 @@
 
 # 설치 의존성
 node_modules/
+.vercel/
 
 # 실행 중 생성되는 임시·캐시 파일
 __pycache__/
